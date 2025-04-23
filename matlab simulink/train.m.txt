@@ -1,0 +1,9 @@
+% Load data from simulation
+load('pid_training_data.mat');
+
+% Train ANN with 2 inputs → 1 output
+net = fitnet([10 5]);  % Hidden layers: 10 and 5 neurons
+net = train(net, data_in, data_out);
+
+% Save network as a Simulink-compatible function
+genFunction(net, 'ann_pid_control', 'MatrixOnly', 'yes');

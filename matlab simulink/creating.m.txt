@@ -1,0 +1,46 @@
+% Simulation parameters
+t_start = 0;
+t_end = 500;
+n_steps = 50;
+dt = (t_end - t_start) / n_steps;
+time_values = linspace(t_start, t_end, n_steps);
+setpoint = 10 * ones(1, n_steps);
+
+% PID parameters
+Kp = 0.5;
+Ki = 0.1;
+Kd = 0.2;
+
+% Initialization
+measurements = zeros(1, n_steps);
+errors = zeros(1, n_steps);
+pid_output = zeros(1, n_steps);
+P = zeros(1, n_steps);
+I = zeros(1, n_steps);
+D = zeros(1, n_steps);
+
+integral = 0;
+prev_error = 0;
+
+for i = 2:n_steps
+    error = setpoint(i) - measurements(i-1);
+    errors(i) = error;
+    
+    integral = integral + error * dt;
+    derivative = (error - prev_error) / dt;
+
+    P(i) = Kp * error;
+    I(i) = Ki * integral;
+    D(i) = Kd * derivative;
+
+    pid = P(i) + I(i) + D(i);
+    pid_output(i) = pid;
+
+    measurements(i) = measurements(i-1) + pid;
+    prev_error = error;
+end
+
+% Save data
+data_in = [errors; diff([0 errors])];   % Inputs: error and d_error
+data_out = pid_output;                  % Output: control signal
+save('pid_training_data.mat', 'data_in', 'data_out');
